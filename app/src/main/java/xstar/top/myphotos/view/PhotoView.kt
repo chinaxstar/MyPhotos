@@ -43,6 +43,14 @@ class PhotoView : View {
         }
     }
 
+    fun setBitmap(bitmap: Bitmap) {
+        photo = BitmapDrawable(resources, bitmap)
+        photo?.bounds = Rect(0, 0, bitmap.width, bitmap.height)
+        photoRect.right = bitmap.width
+        photoRect.bottom = bitmap.height
+        invalidate()
+    }
+
     constructor(context: Context, @Nullable attrs: AttributeSet) : this(context, attrs, 0) {
     }
 
