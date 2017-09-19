@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         photoBitmap = BitmapFactory.decodeResource(resources, R.mipmap.sheep)
-        Flowable.just(0).map { photoBitmap?.pencil(30) }.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe { it?.let { main_photo.setBitmap(it) } }
+        Flowable.just(0).map { photoBitmap?.pencil(2) }.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe { it?.let { main_photo.setBitmap(it) } }
 
         photo_transforms.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)//横向
         val tramsList = listOf<PhotoTrans>(PhotoTrans("原图", 0), PhotoTrans("灰度", Const.PHOTO_TRANS_GRAY), PhotoTrans("素描", Const.PHOTO_TRANS_SKETCH), PhotoTrans("铅笔画", Const.PHOTO_TRANS_PENCIL))

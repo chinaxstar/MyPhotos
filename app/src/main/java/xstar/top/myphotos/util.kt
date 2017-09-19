@@ -68,6 +68,7 @@ fun Bitmap.pencil(threshold: Int = 8): Bitmap {
     if (threshold < 0) _threshold = 0
     else if (threshold > 100) _threshold = 100
     val newPixels = pixels()//灰度数据
+    val pixels=IntArray(newPixels.size)
     val white = Color.WHITE
     val black = Color.BLACK
     var w: Int
@@ -88,11 +89,11 @@ fun Bitmap.pencil(threshold: Int = 8): Bitmap {
         area[6] = newPixels[width * (h + 1) + w]
         area[7] = newPixels[width * (h + 1) + w + 1]
         if (checkDiff(sumARGB(area), ARGB(newPixels[index]), _threshold))
-            newPixels[index] = white
+            pixels[index] = black
         else
-            newPixels[index] = black
+            pixels[index] = white
     }
-    return Bitmap.createBitmap(newPixels, width, height, config)
+    return Bitmap.createBitmap(pixels, width, height, config)
 }
 
 /**
