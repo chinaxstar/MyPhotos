@@ -1,12 +1,18 @@
 package xstar.top.myphotos
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Rect
+import android.view.View
+import android.view.ViewGroup
+import top.xstar.photolibrary.HelloC
 
 /**
  * @author: xstar
  * @since: 2017-09-18.
  */
+
 
 fun Bitmap.pixels(): IntArray {
     val pixels = IntArray(width * height)
@@ -24,35 +30,33 @@ fun Bitmap.gray(alogrithm: String = GrayAlogrithmType.Weight): Bitmap {
  * 在对图像进行灰度化处理后，我们首先定义一个阈值（threshold）。我们知道素描主要强调的是明暗度的变化，
  * 绘制时是斜向方向，通过经验，我们将每个像素点的灰度值与其右下角的灰度值进行比较，当大于这个阈值时，就判断其是轮廓并绘制。
  */
-fun Bitmap.sketch(threshold: Int = 8): Bitmap {
+fun Bitmap.sketch(threshold: Int = 15): Bitmap {
     var _threshold = threshold
     if (threshold < 0) _threshold = 0
     else if (threshold > 100) _threshold = 100
     val newPixels = pixels()//灰度数据
-    var src: Int
-    var dst: Int
-    var diff: Int
-    val white = Color.WHITE
-    val black = Color.BLACK
-    var w: Int
-    var h: Int
-    for (index in newPixels.indices) {
-        w = index % width
-        h = index / width
-        if (w == (width - 1) || h == height - 1)
-            continue
-        assert(w * h + w == index, { "下标不相等！" + (w * h + w) })
-        src = choiceAlogrithm(newPixels[width * h + w])//当前点灰度
-        dst = choiceAlogrithm(newPixels[width * (h + 1) + (w + 1)])//右下点灰度
-        diff = Math.abs(src - dst)
-//        Log.e("index", index.toString().plus("==").plus((w * h + w)))
-//        if (0 < diff) Log.e("diff", diff.toString())
-        if (diff >= _threshold)
-            newPixels[index] = black
-        else
-            newPixels[index] = white
-    }
-    return Bitmap.createBitmap(newPixels, width, height, config)
+//    var src: Int
+//    var dst: Int
+//    var diff: Int
+//    val white = Color.WHITE
+//    val black = Color.BLACK
+//    var w: Int
+//    var h: Int
+//    for (index in newPixels.indices) {
+//        w = index % width
+//        h = index / width
+//        if (w == (width - 1) || h == height - 1)
+//            continue
+//        assert(w * h + w == index, { "下标不相等！" + (w * h + w) })
+//        src = choiceAlogrithm(newPixels[width * h + w])//当前点灰度
+//        dst = choiceAlogrithm(newPixels[width * (h + 1) + (w + 1)])//右下点灰度
+//        diff = Math.abs(src - dst)
+//        if (diff >= _threshold)
+//            newPixels[index] = black
+//        else
+//            newPixels[index] = white
+//    }
+    return Bitmap.createBitmap(HelloC.sketch(newPixels,width,height,_threshold), width, height, config)
 }
 
 /**
@@ -68,18 +72,18 @@ fun Bitmap.pencil(threshold: Int = 8): Bitmap {
     if (threshold < 0) _threshold = 0
     else if (threshold > 100) _threshold = 100
     val newPixels = pixels()//灰度数据
-    val pixels=IntArray(newPixels.size)
+    val pixels = IntArray(newPixels.size)
     val white = Color.WHITE
     val black = Color.BLACK
     var w: Int
     var h: Int
-    var area = IntArray(8)
+    val area = IntArray(8)
+    var argb: IntArray
     for (index in newPixels.indices) {
         w = index % width
         h = index / width
         if (w == 0 || h == 0 || w == (width - 1) || h == height - 1)
             continue
-        assert(w * h + w == index, { "下标不相等！" + (w * h + w) })
         area[0] = newPixels[width * (h - 1) + w - 1]
         area[1] = newPixels[width * (h - 1) + w]
         area[2] = newPixels[width * (h - 1) + w + 1]
@@ -88,8 +92,9 @@ fun Bitmap.pencil(threshold: Int = 8): Bitmap {
         area[5] = newPixels[width * (h + 1) + w - 1]
         area[6] = newPixels[width * (h + 1) + w]
         area[7] = newPixels[width * (h + 1) + w + 1]
-        if (checkDiff(sumARGB(area), ARGB(newPixels[index]), _threshold))
-            pixels[index] = black
+        argb = ARGB(newPixels[index])
+        if (argb[0] != 0 && checkDiff2(sumARGB(area), argb, _threshold))
+            pixels[index] = black.or(argb[0].shl(24))
         else
             pixels[index] = white
     }
@@ -119,8 +124,8 @@ fun ARGB(color: Int): IntArray {
     val argb = IntArray(4)
     argb[0] = color.shr(24)//A
     argb[1] = color.shr(16).and(0xff)//R
-    argb[2] = color.shr(8).and(0xff)//R
-    argb[3] = color.and(0xff)//R
+    argb[2] = color.shr(8).and(0xff)//G
+    argb[3] = color.and(0xff)//B
     return argb
 }
 
@@ -129,6 +134,13 @@ fun checkDiff(dist: IntArray, src: IntArray, threshold: Int): Boolean {
         if (Math.abs(src[i] - dist[i]) < threshold) return false
     }
     return true
+}
+
+fun checkDiff2(dist: IntArray, src: IntArray, threshold: Int): Boolean {
+    for (i in 1..3) {
+        if (Math.abs(src[i] - dist[i]) > threshold) return true
+    }
+    return false
 }
 
 fun convert(src: IntArray, mode: String = GrayAlogrithmType.Weight): IntArray {
@@ -183,4 +195,41 @@ object GrayAlogrithmType {
     var Weight = "WEIGHT"
     var Average = "AVERAGE"
     var Maximum = "MAXIMUM"
+}
+
+object Bug54971Workaround {
+    fun assitActivity(activity: Activity) {
+        workaround(activity.window.decorView)
+    }
+
+    var mViewObserved: View? = null
+    var usableHeightPrevious: Int? = null
+    var frameLayoutParams: ViewGroup.LayoutParams? = null
+    private fun workaround(decorView: View?) {
+        mViewObserved = decorView
+        frameLayoutParams = decorView?.layoutParams
+        decorView?.viewTreeObserver?.addOnGlobalLayoutListener { resetLayoutByUsableHeight(computeUsableHeight(decorView)) }
+    }
+
+    /**
+     * 计算视图可视高度
+     *
+     * @return
+     */
+    private fun computeUsableHeight(view: View): Int {
+        val r = Rect()
+        view.getWindowVisibleDisplayFrame(r)
+        return r.bottom - r.top
+    }
+
+    private fun resetLayoutByUsableHeight(usableHeightNow: Int) {
+        //比较布局变化前后的View的可用高度
+        if (usableHeightNow != usableHeightPrevious) {
+            //如果两次高度不一致
+            //将当前的View的可用高度设置成View的实际高度
+            frameLayoutParams?.height = usableHeightNow
+            mViewObserved?.requestLayout()//请求重新布局
+            usableHeightPrevious = usableHeightNow
+        }
+    }
 }

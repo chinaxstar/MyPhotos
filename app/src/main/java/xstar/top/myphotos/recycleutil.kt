@@ -9,9 +9,14 @@ import android.view.ViewGroup
  * @author: xstar
  * @since: 2017-09-18.
  */
+
+fun <T : View> View.find(resId: Int): T {
+    return findViewById(resId) as T
+}
+
 class BaseVH constructor(item: View) : RecyclerView.ViewHolder(item) {
     fun <T : View> find(resId: Int): T {
-        return itemView.findViewById(resId) as T
+        return itemView.find<T>(resId)
     }
 }
 
@@ -48,8 +53,8 @@ open abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseVH>() {
     var onItemClickListener: OnItemClickListener? = null
     var onFootClickListener: OnItemClickListener? = null
 
-    open interface OnItemClickListener {
-        open fun onItemClick(adapter: RecyclerView.Adapter<BaseVH>, view: View, position: Int)
+    interface OnItemClickListener {
+        fun onItemClick(adapter: RecyclerView.Adapter<BaseVH>, view: View, position: Int)
     }
 
     override fun getItemViewType(position: Int): Int {

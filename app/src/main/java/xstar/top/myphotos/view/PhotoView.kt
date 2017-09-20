@@ -18,8 +18,6 @@ import xstar.top.myphotos.R
  * @since: 2017-09-11.
  */
 class PhotoView : View {
-
-
     val photoMatrix = Matrix()
     var photo: BitmapDrawable? = null
     val paint = Paint()
@@ -27,10 +25,7 @@ class PhotoView : View {
     val photoRect = Rect()
     val movedLenth = PointF()
 
-
-    constructor(context: Context) : super(context) {
-
-    }
+    constructor(context: Context) : super(context)
 
     constructor(context: Context, @Nullable attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr, 0) {
         val a = context.obtainStyledAttributes(attrs, R.styleable.PhotoView, defStyleAttr, 0)
@@ -48,11 +43,10 @@ class PhotoView : View {
         photo?.bounds = Rect(0, 0, bitmap.width, bitmap.height)
         photoRect.right = bitmap.width
         photoRect.bottom = bitmap.height
-        invalidate()
+        recover()
     }
 
-    constructor(context: Context, @Nullable attrs: AttributeSet) : this(context, attrs, 0) {
-    }
+    constructor(context: Context, @Nullable attrs: AttributeSet) : this(context, attrs, 0)
 
     override fun onDraw(canvas: Canvas?) {
         canvas!!
@@ -65,12 +59,6 @@ class PhotoView : View {
             photoMatrix.postTranslate(left.plus(movedLenth.x), top.plus(movedLenth.y))
             canvas.drawBitmap(bitmap, photoMatrix, paint)
         }
-    }
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val wMode = MeasureSpec.getMode(widthMeasureSpec)
-        val hMode = MeasureSpec.getMode(heightMeasureSpec)
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     var doScale = false
@@ -102,14 +90,6 @@ class PhotoView : View {
             doScale = true
             return true
         }
-
-        override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
-            return super.onScaleBegin(detector)
-        }
-
-        override fun onScaleEnd(detector: ScaleGestureDetector?) {
-            super.onScaleEnd(detector)
-        }
     })
 
     fun photoScaleChange(scale: Float) {
@@ -123,7 +103,6 @@ class PhotoView : View {
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
             //滑动
-
             if (!doScale and (Math.abs(distanceX) > 3f) and (Math.abs(distanceY) > 3)) {
                 Log.e("touch", String.format("x:%s,y:%s", distanceX.toString(), distanceY.toString()))
                 movedLenth.x -= distanceX
@@ -136,13 +115,24 @@ class PhotoView : View {
 
         override fun onDoubleTap(e: MotionEvent?): Boolean {
             //双击恢复原状
-            movedLenth.set(0f, 0f)
-            scaleNum = 1f
-            photoScaleChange(scaleNum)
-            invalidate()
+            recover()
             return true
         }
-
-
     })
+
+    /**
+     * 恢复默认状态
+     */
+    fun recover() {
+        movedLenth.set(0f, 0f)
+        scaleNum = 1f
+        photoScaleChange(scaleNum)
+        invalidate()
+    }
+
+    fun setColorFilter(colorFilter: ColorFilter) {
+        paint.colorFilter=colorFilter
+        paint.isAntiAlias=true
+        invalidate()
+    }
 }

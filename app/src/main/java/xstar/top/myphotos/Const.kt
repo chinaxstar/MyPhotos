@@ -9,7 +9,7 @@ import android.view.WindowManager
  * @since: 2017-09-18.
  */
 object Const {
-    open fun init(context: Context) {
+    fun init(context: Context) {
         val win = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val dm = DisplayMetrics()
         win.defaultDisplay.getMetrics(dm)
@@ -20,13 +20,13 @@ object Const {
 
     }
 
-    open var SCREEN_W = 0
-    open var SCREEN_H = 0
-    open var DENSITY = 0f
-    open var SCALE_DENSITY = 0f
+    var SCREEN_W = 0
+    var SCREEN_H = 0
+    var DENSITY = 0f
+    var SCALE_DENSITY = 0f
 
-    open val PHOTO_TRANS_NONE = 0//无变换
-    open val PHOTO_TRANS_GRAY = 1//灰度
-    open val PHOTO_TRANS_SKETCH = 2//素描
-    open val PHOTO_TRANS_PENCIL = 3//铅笔画
+    val PHOTO_TRANS_NONE = 0//无变换
+    val PHOTO_TRANS_GRAY = 1//灰度
+    val PHOTO_TRANS_SKETCH = 2//素描
+    val PHOTO_TRANS_PENCIL = 3//铅笔画
 }
