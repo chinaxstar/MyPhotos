@@ -17,7 +17,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := hello
-LOCAL_SRC_FILES := HelloC.c
+LOCAL_SRC_FILES :=HelloC.c
 
 APP_ABI := armeabi armeabi-v7a x86 mips
 

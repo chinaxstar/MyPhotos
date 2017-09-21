@@ -19,10 +19,16 @@
  *
  */
 #include <jni.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <android/log.h>
 
-const int END = 0xff;
-const int32_t WHITE = 0xffffffff;
-const int32_t BLACK = 0xff000000;
+#define TAG "JNI_LOG"
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,TAG,__VA_ARGS__)
+const jint END = 0x000000ff;
+const jint WHITE = 0xffffffff;
+const jint BLACK = 0xff000000;
 
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. See the corresponding Java source
@@ -36,20 +42,14 @@ Java_top_xstar_photolibrary_HelloC_hello(JNIEnv *env, jobject instance) {
     return (*env)->NewStringUTF(env, "Hello JNI !");
 }
 
-jint *ARGB(jint src) {
-    jint color[3];
-    color[0] = ((src >> 16) & END);
-    color[1] = (jbyte) ((src >> 16) & END);
-    color[2] = (src >> 8) & END;
-    color[3] = src & END;
-    return color;
-}
 
-JNIEXPORT jint JNICALL Java_top_xstar_photolibrary_HelloC_grayAlogrithm(jint src) {
-    int r = (src >> 16) & END;
-    int g = (src >> 8) & END;
-    int b = src & END;
-    return (jint) (r * 299 + g * 587 + b * 114) / 1000;
+JNIEXPORT jint JNICALL Java_top_xstar_photolibrary_HelloC_grayAlogrithm(JNIEnv *jniEnv, jint src) {
+    jint A=src>>24;
+    jint R=((src<<8)>>24)&END;
+    jint G=(src<<16)>>24;
+    jint B=(src<<24)>>24;
+    return R;
+//    return (B*259+G*557+R*114)/1000;
 }
 
 JNIEXPORT jint JNICALL Java_top_xstar_photolibrary_HelloC_abs(jint n) {
@@ -72,8 +72,8 @@ JNIEXPORT jintArray JNICALL Java_top_xstar_photolibrary_HelloC_sketch
         for (int j = 0; j < w; ++j) {
             if (j == w - 1 || i == h - 1)
                 continue;
-            src = Java_top_xstar_photolibrary_HelloC_grayAlogrithm(p[i * w + j]);
-            dst = Java_top_xstar_photolibrary_HelloC_grayAlogrithm(p[i * (w + 1) + j + 1]);
+            src = Java_top_xstar_photolibrary_HelloC_grayAlogrithm(jniEnv, p[i * w + j]);
+            dst = Java_top_xstar_photolibrary_HelloC_grayAlogrithm(jniEnv, p[i * (w + 1) + j + 1]);
             if (Java_top_xstar_photolibrary_HelloC_abs(src - dst) >= threshold) {
                 p[i * w + j] = BLACK;
             } else {

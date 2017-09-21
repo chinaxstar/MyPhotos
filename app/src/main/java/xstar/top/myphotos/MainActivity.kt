@@ -64,9 +64,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
         Log.e("JNI", HelloC.hello())
+        Log.e("gray", HelloC.abs(Int.MIN_VALUE).toString())
         Log.e("gray", HelloC.grayAlogrithm(0x884422).toString())
-        Log.e("gray", HelloC.ARGB(0x884422).toString())
     }
+
 
     class ImgAdapter constructor(bitmap: Bitmap) : BaseAdapter<PhotoTrans>() {
         var srcBitmap: Bitmap? = null

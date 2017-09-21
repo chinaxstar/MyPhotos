@@ -39,5 +39,4 @@ public class HelloC {
 
     public static native int abs(int src);
 
-    public static native byte[] ARGB(int src);
 }
