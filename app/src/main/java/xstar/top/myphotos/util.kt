@@ -22,7 +22,8 @@ fun Bitmap.pixels(): IntArray {
 
 fun Bitmap.gray(alogrithm: String = GrayAlogrithmType.Weight): Bitmap {
     val pixels = pixels()
-    val newPixels = convert(pixels, alogrithm)
+//    val newPixels = convert(pixels, alogrithm)
+    val newPixels = HelloC.grey(pixels, width, height)
     return Bitmap.createBitmap(newPixels, width, height, config)
 }
 
@@ -35,28 +36,7 @@ fun Bitmap.sketch(threshold: Int = 15): Bitmap {
     if (threshold < 0) _threshold = 0
     else if (threshold > 100) _threshold = 100
     val newPixels = pixels()//灰度数据
-//    var src: Int
-//    var dst: Int
-//    var diff: Int
-//    val white = Color.WHITE
-//    val black = Color.BLACK
-//    var w: Int
-//    var h: Int
-//    for (index in newPixels.indices) {
-//        w = index % width
-//        h = index / width
-//        if (w == (width - 1) || h == height - 1)
-//            continue
-//        assert(w * h + w == index, { "下标不相等！" + (w * h + w) })
-//        src = choiceAlogrithm(newPixels[width * h + w])//当前点灰度
-//        dst = choiceAlogrithm(newPixels[width * (h + 1) + (w + 1)])//右下点灰度
-//        diff = Math.abs(src - dst)
-//        if (diff >= _threshold)
-//            newPixels[index] = black
-//        else
-//            newPixels[index] = white
-//    }
-    return Bitmap.createBitmap(HelloC.sketch(newPixels,width,height,_threshold), width, height, config)
+    return Bitmap.createBitmap(HelloC.sketch(newPixels, width, height, _threshold), width, height, config)
 }
 
 /**
@@ -72,33 +52,34 @@ fun Bitmap.pencil(threshold: Int = 8): Bitmap {
     if (threshold < 0) _threshold = 0
     else if (threshold > 100) _threshold = 100
     val newPixels = pixels()//灰度数据
-    val pixels = IntArray(newPixels.size)
-    val white = Color.WHITE
-    val black = Color.BLACK
-    var w: Int
-    var h: Int
-    val area = IntArray(8)
-    var argb: IntArray
-    for (index in newPixels.indices) {
-        w = index % width
-        h = index / width
-        if (w == 0 || h == 0 || w == (width - 1) || h == height - 1)
-            continue
-        area[0] = newPixels[width * (h - 1) + w - 1]
-        area[1] = newPixels[width * (h - 1) + w]
-        area[2] = newPixels[width * (h - 1) + w + 1]
-        area[3] = newPixels[width * h + w - 1]
-        area[4] = newPixels[width * h + w + 1]
-        area[5] = newPixels[width * (h + 1) + w - 1]
-        area[6] = newPixels[width * (h + 1) + w]
-        area[7] = newPixels[width * (h + 1) + w + 1]
-        argb = ARGB(newPixels[index])
-        if (argb[0] != 0 && checkDiff2(sumARGB(area), argb, _threshold))
-            pixels[index] = black.or(argb[0].shl(24))
-        else
-            pixels[index] = white
-    }
-    return Bitmap.createBitmap(pixels, width, height, config)
+//    val pixels = IntArray(newPixels.size)
+//    val white = Color.WHITE
+//    val black = Color.BLACK
+//    var w: Int
+//    var h: Int
+//    val area = IntArray(8)
+//    var argb: IntArray
+//    for (index in newPixels.indices) {
+//        w = index % width
+//        h = index / width
+//        if (w == 0 || h == 0 || w == (width - 1) || h == height - 1)
+//            continue
+//        area[0] = newPixels[width * (h - 1) + w - 1]
+//        area[1] = newPixels[width * (h - 1) + w]
+//        area[2] = newPixels[width * (h - 1) + w + 1]
+//        area[3] = newPixels[width * h + w - 1]
+//        area[4] = newPixels[width * h + w + 1]
+//        area[5] = newPixels[width * (h + 1) + w - 1]
+//        area[6] = newPixels[width * (h + 1) + w]
+//        area[7] = newPixels[width * (h + 1) + w + 1]
+//        argb = ARGB(newPixels[index])
+//        if (argb[0] != 0 && checkDiff2(sumARGB(area), argb, _threshold))
+//            pixels[index] = black.or(argb[0].shl(24))
+//        else
+//            pixels[index] = white
+//    }
+//    return Bitmap.createBitmap(pixels, width, height, config)
+    return Bitmap.createBitmap(HelloC.pencil(newPixels,width,height,threshold), width, height, config)
 }
 
 /**

@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         }
         photoBitmap = BitmapFactory.decodeResource(resources, R.mipmap.lam)
-        Flowable.just(0).map { photoBitmap?.sketch() }.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe { it?.let { main_photo.setBitmap(it) } }
+        Flowable.just(0).map { photoBitmap?.pencil() }.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe { it?.let { main_photo.setBitmap(it) } }
         main_photo.layoutParams.width = Const.SCREEN_W
         main_photo.layoutParams.height = Const.SCREEN_H
 //        main_photo.setColorFilter(ColorMatrixColorFilter(colorMatrix))
@@ -64,8 +64,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         Log.e("JNI", HelloC.hello())
-        Log.e("gray", HelloC.abs(Int.MIN_VALUE).toString())
-        Log.e("gray", HelloC.grayAlogrithm(0x884422).toString())
+        Log.e("gray", HelloC.grayAlogrithm(0xFFFFFFFF.toInt()).toString())
     }
 
 

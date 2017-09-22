@@ -35,8 +35,29 @@ public class HelloC {
      */
     public static native int[] sketch(int[] pixels, int w, int h, int threshold);
 
+    /**
+     * 灰度图片
+     *
+     * @param pixels
+     * @param w
+     * @param h
+     * @return
+     */
+    public static native int[] grey(int[] pixels, int w, int h);
+
     public static native int grayAlogrithm(int src);
 
     public static native int abs(int src);
+
+    /**
+     * 检查周围八个点的色值分量
+     *
+     * @param pixels
+     * @param src
+     * @param threshold
+     * @return
+     */
+    public static native boolean checkDiff(int[] pixels, int src, int threshold);
+
 
 }
