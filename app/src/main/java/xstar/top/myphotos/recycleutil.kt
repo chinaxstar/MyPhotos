@@ -26,17 +26,17 @@ open abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseVH>() {
     var footLayout: Int? = 0
     var inflate: LayoutInflater? = null
     var hasFooter = false
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): BaseVH {
-        if (inflate == null) inflate = LayoutInflater.from(parent?.context)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseVH {
+        if (inflate == null) inflate = LayoutInflater.from(parent.context)
         return BaseVH(inflate!!.inflate(viewType, parent, false))
     }
 
-    override fun onBindViewHolder(holder: BaseVH?, position: Int) {
+    override fun onBindViewHolder(holder: BaseVH, position: Int) {
         if (hasFooter && position == itemCount - 1) {
-            holder?.itemView?.setOnClickListener { onFootClickListener?.onItemClick(this, it, position) }
+            holder.itemView.setOnClickListener { onFootClickListener?.onItemClick(this, it, position) }
             onFootBind(holder, position)
         } else {
-            holder?.itemView?.setOnClickListener { onItemClickListener?.onItemClick(this, it, position) }
+            holder.itemView.setOnClickListener { onItemClickListener?.onItemClick(this, it, position) }
             onBindView(holder, position)
         }
     }
