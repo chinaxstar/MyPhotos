@@ -47,39 +47,39 @@ fun Bitmap.sketch(threshold: Int = 15): Bitmap {
  * @param threshold 阈值
  * 简笔画
  */
-fun Bitmap.pencil(threshold: Int = 8): Bitmap {
+fun Bitmap.pencil(threshold: Int = 18): Bitmap {
     var _threshold = threshold
     if (threshold < 0) _threshold = 0
     else if (threshold > 100) _threshold = 100
     val newPixels = pixels()//灰度数据
-    val pixels = IntArray(newPixels.size)
-    val white = Color.WHITE
-    val black = Color.BLACK
-    var w: Int
-    var h: Int
-    val area = IntArray(8)
-    var argb: IntArray
-    for (index in newPixels.indices) {
-        w = index % width
-        h = index / width
-        if (w == 0 || h == 0 || w == (width - 1) || h == height - 1)
-            continue
-        area[0] = newPixels[width * (h - 1) + w - 1]
-        area[1] = newPixels[width * (h - 1) + w]
-        area[2] = newPixels[width * (h - 1) + w + 1]
-        area[3] = newPixels[width * h + w - 1]
-        area[4] = newPixels[width * h + w + 1]
-        area[5] = newPixels[width * (h + 1) + w - 1]
-        area[6] = newPixels[width * (h + 1) + w]
-        area[7] = newPixels[width * (h + 1) + w + 1]
-        argb = ARGB(newPixels[index])
-        if (argb[0] != 0 && checkDiff2(sumARGB(area), argb, _threshold))
-            pixels[index] = black.or(argb[0].shl(24))
-        else
-            pixels[index] = white
-    }
-    return Bitmap.createBitmap(pixels, width, height, config)
-//    return Bitmap.createBitmap(HelloC.pencil(newPixels,width,height,threshold), width, height, config)
+//    val pixels = IntArray(newPixels.size)
+//    val white = Color.WHITE
+//    val black = Color.BLACK
+//    var w: Int
+//    var h: Int
+//    val area = IntArray(8)
+//    var argb: IntArray
+//    for (index in newPixels.indices) {
+//        w = index % width
+//        h = index / width
+//        if (w == 0 || h == 0 || w == (width - 1) || h == height - 1)
+//            continue
+//        area[0] = newPixels[width * (h - 1) + w - 1]
+//        area[1] = newPixels[width * (h - 1) + w]
+//        area[2] = newPixels[width * (h - 1) + w + 1]
+//        area[3] = newPixels[width * h + w - 1]
+//        area[4] = newPixels[width * h + w + 1]
+//        area[5] = newPixels[width * (h + 1) + w - 1]
+//        area[6] = newPixels[width * (h + 1) + w]
+//        area[7] = newPixels[width * (h + 1) + w + 1]
+//        argb = ARGB(newPixels[index])
+//        if (argb[0] != 0 && checkDiff2(sumARGB(area), argb, _threshold))
+//            pixels[index] = black.or(argb[0].shl(24))
+//        else
+//            pixels[index] = white
+//    }
+//    return Bitmap.createBitmap(pixels, width, height, config)
+    return Bitmap.createBitmap(HelloC.pencil(newPixels,width,height,threshold), width, height, config)
 }
 
 /**

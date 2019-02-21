@@ -23,7 +23,8 @@
 #include <stdio.h>
 
 #define TAG "JNI_LOG"
-#define LOGE(text) __android_log_print(ANDROID_LOG_ERROR,TAG,"#text")
+#define LOGE(text) __android_log_print(ANDROID_LOG_ERROR,TAG,"%s",text)
+#undef LOGE
 
 const jint END = 255;
 const jint WHITE = 0xffffffff;
@@ -50,67 +51,111 @@ Java_top_xstar_photolibrary_HelloC_grayAlogrithm(JNIEnv *jniEnv, jclass jc, jint
     return (B * 114 + G * 587 + R * 299) / 1000;
 }
 
-JNIEXPORT jboolean JNICALL
-Java_top_xstar_photolibrary_HelloC_checkDiff(JNIEnv *jniEnv, jclass jc, jintArray _rgb, jint src,
-                                             jint threshold) {
-    jint *rgb = (*jniEnv)->GetIntArrayElements(jniEnv, _rgb, NULL);
-    jsize len = (*jniEnv)->GetArrayLength(jniEnv, _rgb);
-    jint R = ((src >> 16) & END) * len;
-    jint G = ((src >> 8) & END) * len;
-    jint B = (src & END) * len;
-    threshold *= len;
-    for (int i = 0; i < len; ++i) {
-        R -= ((rgb[i] >> 16) & END);
-        G -= ((rgb[i] >> 8) & END);
-        B -= (rgb[i] & END);
-    }
-#ifdef LOGE
-    char str[30];
-    sprintf(str, "R%dG%dB%d", R, G, B);
-    LOGE(str);
-#endif
-    (*jniEnv)->ReleaseIntArrayElements(jniEnv, _rgb, rgb, JNI_ABORT);
-    if ((R >= threshold) & (G >= threshold) & (B >= threshold))return 1;
-    return 0;
-}
-
 JNIEXPORT jint JNICALL Java_top_xstar_photolibrary_HelloC_abs(JNIEnv *jniEnv, jclass jc, jint n) {
     return n > 0 ? n : -n;
 }
 
+jint *ARGB(JNIEnv *jniEnv, jint src) {
+    jintArray temp = (*jniEnv)->NewIntArray(jniEnv, 4);
+    jint *p = (*jniEnv)->GetIntArrayElements(jniEnv, temp, NULL);
+    p[0] += (src >> 24);
+    p[1] += ((src >> 16) & END);
+    p[2] += ((src >> 8) & END);
+    p[3] += (src & END);
+//    (*jniEnv)->ReleaseIntArrayElements(jniEnv, temp, p, JNI_ABORT);
+#ifdef LOGE
+    char str[50];
+    sprintf(str, "argb:%d %d %d %d", p[0], p[1], p[2], p[3]);
+    LOGE(str);
+#endif
+    return p;
+}
+
+jint *sumArea(JNIEnv *jniEnv, jint *_area) {
+    jintArray temp = (*jniEnv)->NewIntArray(jniEnv, 4);
+    jint *p = (*jniEnv)->GetIntArrayElements(jniEnv, temp, NULL);
+
+//    jint *_area = (*jniEnv)->GetIntArrayElements(jniEnv, area, );
+    for (int i = 0; i < 8; i++) {
+        p[0] += (_area[i] >> 24);
+        p[1] += ((_area[i] >> 16) & END);
+        p[2] += ((_area[i] >> 8) & END);
+        p[3] += (_area[i] & END);
+    }
+    p[0] = p[0] >> 3;
+    p[1] = p[1] >> 3;
+    p[2] = p[2] >> 3;
+    p[3] = p[3] >> 3;
+//    (*jniEnv)->ReleaseIntArrayElements(jniEnv, temp, p, JNI_ABORT);
+#ifdef LOGE
+    char str[50];
+    sprintf(str, "sumArea:%d %d %d %d", p[0], p[1], p[2], p[3]);
+    LOGE(str);
+#endif
+    return p;
+}
+
+jboolean checkDiff(JNIEnv *jniEnv, jclass jc, jint *avg,
+                   jint *src,
+                   jint threshold) {
+    for (int i = 0; i < 3; ++i) {
+#ifdef LOGE
+        char str[50];
+        sprintf(str, "_avg:%d _src:%d", avg[i], src[i]);
+        LOGE(str);
+#endif
+        if (Java_top_xstar_photolibrary_HelloC_abs(jniEnv, jc, avg[i] - src[i]) >=
+            threshold)
+            return 1;
+    }
+    return 0;
+}
+
+
 JNIEXPORT jintArray JNICALL Java_top_xstar_photolibrary_HelloC_pencil
         (JNIEnv *jniEnv, jclass jc, jintArray pixels, jint w, jint h, jint threshold) {
-    jintArray newPixels = (*jniEnv)->NewIntArray(jniEnv, w * h);
-    jint *_p = (*jniEnv)->GetIntArrayElements(jniEnv, newPixels, NULL);
-
+    jint *p = (*jniEnv)->GetIntArrayElements(jniEnv, pixels, NULL);
+    jint src;
     jintArray _temp = (*jniEnv)->NewIntArray(jniEnv, 8);
     jint *temp = (*jniEnv)->GetIntArrayElements(jniEnv, _temp, NULL);
 
-    jint src;
-    jint *p = (*jniEnv)->GetIntArrayElements(jniEnv, pixels, NULL);
+    src = p[0];
+    temp[0] = p[0];
+    temp[1] = p[1];
+    temp[2] = p[2];
+    temp[3] = p[3];
+    temp[4] = p[4];
+    temp[5] = p[5];
+    temp[6] = p[6];
+    temp[7] = p[7];
+
+//    if (checkDiff(jniEnv, jc, sumArea(jniEnv, temp), ARGB(jniEnv, src), threshold)) {
+//        p[0] = BLACK;
+//    } else
+//        p[0] = WHITE;
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
-            if (j == (w - 1) | i == (h - 1))
+            if (i <= 1 || j <= 1 || j >= (w - 2) || i >= (h - 2))
                 continue;
             src = p[i * w + j];
             temp[0] = p[(i - 1) * w + j - 1];
             temp[1] = p[(i - 1) * w + j];
             temp[2] = p[(i - 1) * w + j + 1];
-            temp[3] = p[i * w + j + -1];
+            temp[3] = p[i * w + j - 1];
             temp[4] = p[i * w + j + 1];
             temp[5] = p[(i + 1) * w + j - 1];
             temp[6] = p[(i + 1) * w + j];
             temp[7] = p[(i + 1) * w + j + 1];
-            if (Java_top_xstar_photolibrary_HelloC_checkDiff(jniEnv, jc, temp, src, threshold)) {
-                _p[i * w + j] = BLACK;
+            if (checkDiff(jniEnv, jc, sumArea(jniEnv, temp), ARGB(jniEnv, src), threshold)) {
+                p[i * w + j] = BLACK;
             } else
-                _p[i * w + j] = WHITE;
+                p[i * w + j] = WHITE;
         }
     }
+//    (*jniEnv)->ReleaseIntArrayElements(jniEnv, newPixels, _p, JNI_ABORT);
+    (*jniEnv)->ReleaseIntArrayElements(jniEnv, _temp, temp, JNI_ABORT);
     (*jniEnv)->ReleaseIntArrayElements(jniEnv, pixels, p, JNI_ABORT);
-    (*jniEnv)->ReleaseIntArrayElements(jniEnv, newPixels, _p, JNI_ABORT);
-//    (*jniEnv)->ReleaseIntArrayElements(jniEnv, _temp, temp, JNI_ABORT);
-    return newPixels;
+    return pixels;
 }
 
 JNIEXPORT jintArray JNICALL Java_top_xstar_photolibrary_HelloC_grey
@@ -136,6 +181,7 @@ JNIEXPORT jintArray JNICALL Java_top_xstar_photolibrary_HelloC_sketch
     jint src;
     jint dst;
     jint *p = (*jniEnv)->GetIntArrayElements(jniEnv, pixels, NULL);
+    jint temp;
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
             if (j == (w - 1) | i == (h - 1))
@@ -143,7 +189,8 @@ JNIEXPORT jintArray JNICALL Java_top_xstar_photolibrary_HelloC_sketch
             src = Java_top_xstar_photolibrary_HelloC_grayAlogrithm(jniEnv, jc, p[i * w + j]);
             dst = Java_top_xstar_photolibrary_HelloC_grayAlogrithm(jniEnv, jc,
                                                                    p[w * (i + 1) + j + 1]);
-            if (Java_top_xstar_photolibrary_HelloC_abs(jniEnv, jc, src - dst) >= threshold) {
+            temp = Java_top_xstar_photolibrary_HelloC_abs(jniEnv, jc, src - dst);
+            if (temp >= threshold) {
                 p[i * w + j] = BLACK;
             } else {
                 p[i * w + j] = WHITE;

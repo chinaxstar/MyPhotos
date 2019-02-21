@@ -49,15 +49,15 @@ public class HelloC {
 
     public static native int abs(int src);
 
-    /**
-     * 检查周围八个点的色值分量
-     *
-     * @param pixels
-     * @param src
-     * @param threshold
-     * @return
-     */
-    public static native boolean checkDiff(int[] pixels, int src, int threshold);
+//    /**
+//     * 检查周围八个点的色值分量
+//     *
+//     * @param pixels
+//     * @param src
+//     * @param threshold
+//     * @return
+//     */
+//    public static native boolean checkDiff(int[] pixels, int src, int threshold);
 
 
 }

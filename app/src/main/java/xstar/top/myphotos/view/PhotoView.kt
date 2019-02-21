@@ -27,7 +27,7 @@ class PhotoView : View {
 
     constructor(context: Context) : super(context)
 
-    constructor(context: Context, @Nullable attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr, 0) {
+    constructor(context: Context, @Nullable attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         val a = context.obtainStyledAttributes(attrs, R.styleable.PhotoView, defStyleAttr, 0)
         photo = a.getDrawable(R.styleable.PhotoView_photo) as BitmapDrawable
         photo?.let {
@@ -131,8 +131,8 @@ class PhotoView : View {
     }
 
     fun setColorFilter(colorFilter: ColorFilter) {
-        paint.colorFilter=colorFilter
-        paint.isAntiAlias=true
+        paint.colorFilter = colorFilter
+        paint.isAntiAlias = true
         invalidate()
     }
 }
